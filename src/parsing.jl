@@ -48,7 +48,7 @@ end
 
 Diagnostic(b::StaticLint.Binding, doc) = Diagnostic(Range(doc, b.loc.offset .+ (0:b.val.span)), 2, "Unused variable", "Julia language server", "Variable declared but not used: $(string(Expr(b.val)))", nothing)
 Diagnostic(r::StaticLint.Reference, doc) = Diagnostic(Range(doc, r.loc.offset .+ (0:r.val.span)), 2, "Missing variable", "Julia language server", "Use of possibly undeclared variable: $(string(Expr(r.val)))", nothing)
-Diagnostic(err::StaticLint.LintError, doc) = Diagnostic(Range(doc, err.loc.offset .+ (0:err.val.span)), 2, "Lint error", "Julia language server", get(StaticLint.LintMessages, err.code, ""), nothing)
+Diagnostic(err, doc) = Diagnostic(Range(doc, err.loc.offset .+ (0:err.val.span)), 2, "Lint error", "Julia language server", get(StaticLint.LintMessages, err.code, ""), nothing)
 
 
 StaticLint.getfile(server::LanguageServerInstance, path) = server.documents[URI2(filepath2uri(path))].code
