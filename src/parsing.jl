@@ -8,7 +8,7 @@ function parse_all(doc, server)
     # update_includes(doc, server)
     empty!(doc.diagnostics)
     ls_diags = []
-    
+
     for err in ps.errors
         if err.description == "Expected end."
             rng2 = max(0, first(err.loc)-1):last(err.loc)
@@ -16,7 +16,7 @@ function parse_all(doc, server)
             for i = length(stack):-1:1
                 if stack[i] isa CSTParser.EXPR{T} where T <: Union{CSTParser.Begin,CSTParser.Quote,CSTParser.ModuleH,CSTParser.Function,CSTParser.Macro,CSTParser.For,CSTParser.While,CSTParser.If} && last(stack[i].args) isa CSTParser.EXPR{CSTParser.ErrorToken} && stack[i].args[end].args[1] isa CSTParser.KEYWORD
                     rng1 = offsets[i] .+ (1:stack[i].args[1].span)
-                    push!(ls_diags, Diagnostic(Range(doc, rng1), 1, "Parsing error", "Julia language server", "Closing end is missing.", nothing))        
+                    push!(ls_diags, Diagnostic(Range(doc, rng1), 1, "Parsing error", "Julia language server", "Closing end is missing.", nothing))
                 end
             end
             push!(ls_diags, Diagnostic(Range(doc, rng2), 1, "Parsing error", "Julia language server", err.description, nothing))
@@ -25,7 +25,7 @@ function parse_all(doc, server)
             push!(ls_diags, Diagnostic(Range(doc, rng), 1, "Parsing error", "Julia language server", err.description, nothing))
         end
     end
-    
+
     if server.runlinter
         if doc._runlinter
             StaticLint.pass(doc.code)
@@ -33,12 +33,12 @@ function parse_all(doc, server)
             empty!(doc.code.rref)
             empty!(doc.code.uref)
             StaticLint.resolve_refs(doc.code.state.refs, state, doc.code.rref, doc.code.uref);
-            
+
             for r in doc.code.uref
                 r isa StaticLint.Reference{CSTParser.BinarySyntaxOpCall} && continue
                 push!(ls_diags ,Diagnostic(r, doc))
             end
-            for err in doc.code.state.linterrors 
+            for err in doc.code.state.linterrors
                 push!(ls_diags ,Diagnostic(err, doc))
             end
         end
@@ -85,7 +85,7 @@ function clear_diagnostics(uri::URI2, server)
     empty!(doc.diagnostics)
     response =  JSONRPC.Request{Val{Symbol("textDocument/publishDiagnostics")},PublishDiagnosticsParams}(nothing, PublishDiagnosticsParams(doc._uri, Diagnostic[]))
     send(response, server)
-end 
+end
 
 function clear_diagnostics(server)
     for (uri, doc) in server.documents
